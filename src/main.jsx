@@ -72,7 +72,9 @@ const router = createBrowserRouter([
       },
     ],
   },
-])
+], {
+  basename: "/full-stack-blog-web"  // Add this configuration object
+})
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

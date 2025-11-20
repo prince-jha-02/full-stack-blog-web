@@ -64,8 +64,8 @@ function Login() {
                 })}
                 />
                 <Input
-                label="Email: "
-                placeholder="enter your email"
+                label="Password: "
+                placeholder="enter your password"
                 {...register("password",{
                   required:true,
                 })}

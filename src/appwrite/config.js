@@ -21,7 +21,7 @@ export class Service {
         conf.appWriteDatabaseId,
         conf.appWriteCollectionId,
         slug,
-        { title,content, featuredImage, status, userid }
+        { title, content, featuredImage, status, userid }
       );
     } catch (error) {
       console.error("Create post error:", error);
@@ -39,6 +39,7 @@ export class Service {
       );
     } catch (error) {
       console.error("Update post error:", error);
+      throw error;
     }
   }
 
@@ -52,6 +53,7 @@ export class Service {
       return true;
     } catch (error) {
       console.error("Delete post error:", error);
+      return false;
     }
   }
 
@@ -64,6 +66,7 @@ export class Service {
       );
     } catch (error) {
       console.error("Get post error:", error);
+      throw error;
     }
   }
 
@@ -76,6 +79,7 @@ export class Service {
       );
     } catch (error) {
       console.error("Get posts error:", error);
+      return { documents: [] };
     }
   }
 
@@ -95,14 +99,38 @@ export class Service {
   async deleteFile(fileId) {
     try {
       await this.bucket.deleteFile(conf.appWriteBucketId, fileId);
+      return true;
     } catch (error) {
       console.error("Delete file error:", error);
+      // If file not found, consider it deleted
+      if (error.code === 404) {
+        console.warn("File not found, may already be deleted");
+        return true;
+      }
+      return false;
     }
   }
 
-  getFilePreview(fileId) {
-    return this.bucket.getFilePreview(conf.appWriteBucketId, fileId);
-  }
+  // ✅ FIXED: Corrected getFilePreview method
+// In config.js - keep the same method name for backwards compatibility
+getFilePreview(fileId) {
+    if (!fileId) {
+        return null;
+    }
+    
+    try {
+        // Use getFileView which works on free tier
+        const view = this.bucket.getFileView(
+            conf.appWriteBucketId,
+            fileId
+        );
+        
+        return view.href || view.toString();
+    } catch (error) {
+        console.error("getFileView error:", error);
+        return null;
+    }
+}
 }
 
 const service = new Service();

@@ -26,6 +26,8 @@ export default function Post() {
             .then((post) => {
                 if (post) {
                     console.log("Post fetched:", post);
+                    console.log("Featured Image ID:", post.featuredImage);
+                    console.log("Type of featuredImage:", typeof post.featuredImage);
                     setPost(post);
                 } else {
                     console.log("No post found");
@@ -49,6 +51,25 @@ export default function Post() {
         });
     };
 
+    // Generate image URL when post is available
+    const getImageUrl = () => {
+        if (!post?.featuredImage) {
+            console.log("No featuredImage in post");
+            return null;
+        }
+        
+        try {
+            const url = appwriteService.getFilePreview(post.featuredImage);
+            console.log("Generated image URL:", url);
+            return url;
+        } catch (error) {
+            console.error("Error generating preview URL:", error);
+            return null;
+        }
+    };
+
+    const imageUrl = getImageUrl();
+
     if (!slug) {
         return null;
     }
@@ -57,12 +78,31 @@ export default function Post() {
         <div className="py-8">
             <Container>
                 <div className="w-full flex justify-center mb-4 relative border rounded-xl p-2">
-                    {post.featuredImage && (
-                        <img
-                            src={appwriteService.getFilePreview(post.featuredImage)}
-                            alt={post.title}
-                            className="rounded-xl"
-                        />
+                    {post.featuredImage ? (
+                        <div className="w-full">
+                            <p className="text-sm mb-2">Featured Image ID: {post.featuredImage}</p>
+                            <p className="text-sm mb-2">Image URL: {imageUrl || "NULL"}</p>
+                            {imageUrl ? (
+                                <img
+                                    src={imageUrl}
+                                    alt={post.title}
+                                    className="rounded-xl max-w-full h-auto"
+                                    onError={(e) => {
+                                        console.error("Image failed to load");
+                                        console.error("Failed URL:", e.target.src);
+                                    }}
+                                    onLoad={() => console.log("Image loaded successfully")}
+                                />
+                            ) : (
+                                <div className="w-full h-64 bg-red-200 rounded-xl flex items-center justify-center">
+                                    <p className="text-red-700">Failed to generate image URL</p>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="w-full h-64 bg-gray-200 rounded-xl flex items-center justify-center">
+                            <p className="text-gray-500">No featured image in post</p>
+                        </div>
                     )}
 
                     {isAuthor && (
