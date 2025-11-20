@@ -1,7 +1,7 @@
 
-import Footer from "./footer/footer"
-import Header from './header/header'
-import Container from "./container/container"
+import Footer from "./Footer/Footer"
+import Header from './header/Header'
+import Container from "./Container/Container"
 import Logo from "./logo"
 import  LogoutButton from './header/LogoutButton'
 import RTE from "./RTE"
